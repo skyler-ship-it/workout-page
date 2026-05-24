@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter One Fitness — Workout System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --charcoal: #141414;
+    --panel: #1a1a1a;
+    --border: #2a2a2a;
+    --teal: #00c9a7;
+    --teal-dim: #00896f;
+    --yellow: #f5c518;
+    --white: #f0f0f0;
+    --muted: #888;
+    --red: #e05252;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--charcoal);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--teal);
+  }
+
+  .logo span { color: var(--yellow); }
+
+  .week-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 4px;
+    color: var(--muted);
+  }
+
+  .week-badge strong { color: var(--teal); }
+
+  /* GOAL BAR */
+  .goal-bar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .goal-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .goal-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .goal-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .goal-value.highlight { color: var(--teal); }
+
+  /* EMPHASIS BANNER */
+  .emphasis-banner {
+    margin: 24px 32px 0;
+    background: linear-gradient(135deg, #0d2e28 0%, #0a1a16 100%);
+    border: 1px solid var(--teal-dim);
+    border-radius: 8px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .emphasis-icon {
+    font-size: 28px;
+  }
+
+  .emphasis-text h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--teal);
+  }
+
+  .emphasis-text p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* WEEK GRID */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    padding: 20px 32px;
+  }
+
+  .day-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .day-card:hover { border-color: var(--teal-dim); transform: translateY(-2px); }
+  .day-card.active { border-color: var(--teal); }
+  .day-card.saturday { border-color: var(--yellow); }
+
+  .day-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    color: var(--white);
+  }
+
+  .day-card.saturday .day-name { color: var(--yellow); }
+
+  .day-tag {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .tag-emphasis { background: #0d2e28; color: var(--teal); }
+  .tag-support { background: #1a1a1a; color: var(--muted); }
+  .tag-fullbody { background: #2a2200; color: var(--yellow); }
+  .tag-conditioning { background: #1a0d0d; color: var(--red); }
+
+  .day-body { padding: 12px 14px; }
+
+  .workout-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .workout-muscles {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    line-height: 1.5;
+  }
+
+  .view-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--teal);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: center;
+  }
+
+  .view-btn:hover { background: #0d2e28; border-color: var(--teal); }
+  .day-card.saturday .view-btn { color: var(--yellow); }
+  .day-card.saturday .view-btn:hover { background: #2a2200; border-color: var(--yellow); }
+
+  /* SHUFFLE CONTROLS */
+  .controls {
+    display: flex;
+    gap: 12px;
+    padding: 0 32px 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-shuffle {
+    background: var(--teal);
+    color: var(--black);
+    border: none;
+    padding: 12px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn-shuffle:hover { opacity: 0.85; transform: scale(1.02); }
+  .btn-shuffle:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 11px 22px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--muted); color: var(--white); }
+
+  .shuffle-info {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-left: auto;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 40px 20px;
+  }
+
+  .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+  .modal {
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 680px;
+    overflow: hidden;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .modal-day-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+
+  .modal-close:hover { color: var(--white); }
+
+  .modal-body { padding: 24px 28px; }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: var(--teal);
+    margin-bottom: 10px;
+    margin-top: 22px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title:first-child { margin-top: 0; }
+
+  .exercise-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .exercise-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .exercise-table td {
+    padding: 10px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid #1e1e1e;
+    vertical-align: top;
+  }
+
+  .exercise-table tr:last-child td { border-bottom: none; }
+
+  .exercise-name { font-weight: 500; color: var(--white); }
+  .exercise-detail { color: var(--muted); font-family: 'Space Mono', monospace; font-size: 11px; }
+  .exercise-note { color: var(--muted); font-size: 11px; font-style: italic; }
+
+  .warmup-list, .cooldown-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .warmup-list li, .cooldown-list li {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .warmup-list li::before, .cooldown-list li::before {
+    content: '→';
+    color: var(--teal);
+    font-family: 'Space Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .finisher-block {
+    background: #0d0d0d;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .finisher-block p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .finisher-block strong { color: var(--white); }
+
+  .note-block {
+    background: #0d2e28;
+    border: 1px solid var(--teal-dim);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  /* PROGRESS TRACKER */
+  .progress-section {
+    margin: 0 32px 32px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+
+  .progress-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .progress-item label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .progress-item input {
+    width: 100%;
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .progress-item input:focus { border-color: var(--teal); }
+
+  .save-btn {
+    margin-top: 14px;
+    background: transparent;
+    border: 1px solid var(--teal-dim);
+    color: var(--teal);
+    padding: 9px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .save-btn:hover { background: #0d2e28; }
+
+  .saved-msg {
+    font-size: 11px;
+    color: var(--teal);
+    font-family: 'Space Mono', monospace;
+    margin-left: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .saved-msg.show { opacity: 1; }
+
+  /* WEEK EMPHASIS TRACKER */
+  .emphasis-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .dot.done { background: var(--teal); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .week-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 16px 20px; }
+    .week-grid { padding: 16px 20px; grid-template-columns: repeat(2, 1fr); }
+    .controls { padding: 0 20px 20px; }
+    .emphasis-banner { margin: 16px 20px 0; }
+    .progress-section { margin: 0 20px 24px; }
+    .goal-bar { padding: 10px 20px; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">CHAPTER <span>ONE</span> FITNESS</div>
+  <div class="week-badge">WEEK <strong id="weekNum">1</strong> — CYCLE <strong id="cycleNum">A</strong></div>
+</div>
+
+<div class="goal-bar">
+  <div class="goal-item">
+    <span class="goal-label">Current Weight</span>
+    <span class="goal-value" id="currentWeight">143 lbs</span>
+  </div>
+  <div class="goal-item">
+    <span class="goal-label">Target Weight</span>
+    <span class="goal-value highlight">180 lbs</span>
+  </div>
+  <div class="goal-item">
+    <span class="goal-label">Target Body Fat</span>
+    <span class="goal-value highlight">10–12%</span>
+  </div>
+  <div class="goal-item">
+    <span class="goal-label">Program Style</span>
+    <span class="goal-value">Lean Bulk / Hybrid Athlete</span>
+  </div>
+  <div class="goal-item">
+    <span class="goal-label">Long-Term Goal</span>
+    <span class="goal-value">Marathon Ready</span>
+  </div>
+</div>
+
+<div class="emphasis-banner">
+  <div class="emphasis-icon" id="emphasisIcon">💪</div>
+  <div class="emphasis-text">
+    <h3 id="emphasisTitle">THIS WEEK'S EMPHASIS</h3>
+    <p id="emphasisDesc">Loading...</p>
+  </div>
+</div>
+
+<div class="week-grid" id="weekGrid"></div>
+
+<div class="controls">
+  <button class="btn-shuffle" onclick="shuffleWeek()">⟳ SHUFFLE WEEK</button>
+  <button class="btn-secondary" onclick="prevWeek()">← PREV WEEK</button>
+  <button class="btn-secondary" onclick="nextWeek()">NEXT WEEK →</button>
+  <span class="shuffle-info" id="shuffleInfo">Auto-shuffles every Monday</span>
+</div>
+
+<div class="progress-section">
+  <div class="progress-title">TRACK YOUR PROGRESS</div>
+  <div class="progress-grid">
+    <div class="progress-item">
+      <label>Current Weight (lbs)</label>
+      <input type="number" id="trackWeight" placeholder="143">
+    </div>
+    <div class="progress-item">
+      <label>Body Fat % (estimate)</label>
+      <input type="number" id="trackBF" placeholder="~18">
+    </div>
+    <div class="progress-item">
+      <label>Longest Run (miles)</label>
+      <input type="number" id="trackRun" placeholder="0">
+    </div>
+    <div class="progress-item">
+      <label>Weeks Completed</label>
+      <input type="number" id="trackWeeks" placeholder="0">
+    </div>
+  </div>
+  <button class="save-btn" onclick="saveProgress()">SAVE PROGRESS</button>
+  <span class="saved-msg" id="savedMsg">✓ Saved!</span>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-day-label" id="modalDayLabel"></div>
+        <div class="modal-title" id="modalTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// WORKOUT DATABASE — 63 UNIQUE DAILY WORKOUTS
+// ============================================================
+
+const WORKOUTS = [
+
+// ===== BACK & BICEPS EMPHASIS (10 workouts) =====
+{
+  id: 'BB1',
+  name: 'Deadlift Power + Curl Circuit',
+  muscles: 'Back, Biceps, Traps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster, moderate pace',
+    'Cat-cow stretches x 10 reps',
+    'Band pull-aparts x 20',
+    'Hip hinge bodyweight x 10'
+  ],
+  exercises: [
+    { name: 'Conventional Deadlift', sets: '4', reps: '5', rest: '2–3 min', note: 'Focus on hip hinge, keep bar over mid-foot' },
+    { name: 'Barbell Row (Pendlay)', sets: '4', reps: '8', rest: '90 sec', note: 'Full reset each rep, explosive pull' },
+    { name: 'Lat Pulldown (Wide Grip)', sets: '3', reps: '10', rest: '75 sec', note: 'Drive elbows to hips' },
+    { name: 'Single-Arm DB Row', sets: '3', reps: '12 each', rest: '60 sec', note: 'Full stretch at bottom' },
+    { name: 'Barbell Curl', sets: '3', reps: '10', rest: '60 sec', note: 'No swinging, slow eccentric 3 sec' },
+    { name: 'Hammer Curl', sets: '3', reps: '12', rest: '60 sec', note: 'Neutral grip, targets brachialis' },
+    { name: 'Face Pull (Cable)', sets: '3', reps: '15', rest: '45 sec', note: 'Rear delt activation, rope to forehead' },
+  ],
+  finisher: '<strong>Cardio Finisher:</strong> 3 rounds — 400m treadmill run at 7.5 mph + 20 band pull-aparts. Rest 90 sec between rounds.',
+  note: 'Deadlift is your primary strength builder. If your lower back is fatigued, drop to Romanian Deadlifts instead.'
+},
+{
+  id: 'BB2',
+  name: 'Pull-Up Pyramid + Isolation Burn',
+  muscles: 'Lats, Biceps, Rear Delts',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill at 4 mph incline 5%',
+    'Scapular pull-ups x 10',
+    'Band bicep curl x 15',
+    'Shoulder circles x 10 each'
+  ],
+  exercises: [
+    { name: 'Weighted Pull-Up', sets: '5', reps: '3-5-7-5-3 (pyramid)', rest: '2 min', note: 'Use belt for weight on sets 1–2' },
+    { name: 'Cable Row (V-Bar)', sets: '4', reps: '10', rest: '75 sec', note: 'Squeeze shoulder blades together' },
+    { name: 'Chest-Supported DB Row', sets: '3', reps: '12', rest: '60 sec', note: 'Removes lower back fatigue' },
+    { name: 'Straight-Arm Pulldown', sets: '3', reps: '15', rest: '45 sec', note: 'Lat isolation, keep arms straight' },
+    { name: 'Incline DB Curl', sets: '3', reps: '10', rest: '60 sec', note: 'Full stretch, long head emphasis' },
+    { name: 'Cable Curl (High Pulley)', sets: '3', reps: '12', rest: '45 sec', note: 'Arms parallel to floor, peak contraction' },
+  ],
+  finisher: '<strong>EMOM 8 min:</strong> Even minutes — 10 band curls. Odd minutes — 10 inverted rows.',
+  note: 'If you cannot do 3 weighted pull-ups, use bodyweight and band assist. Quality > quantity here.'
+},
+{
+  id: 'BB3',
+  name: 'Romanian Deadlift + Superset Back',
+  muscles: 'Back, Hamstrings, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike, easy pace',
+    'Good morning bodyweight x 10',
+    'Band pull-apart x 20',
+    'Hip flexor stretch 30 sec each'
+  ],
+  exercises: [
+    { name: 'Romanian Deadlift', sets: '4', reps: '8', rest: '2 min', note: 'Feel hamstring stretch, bar stays close' },
+    { name: 'Wide-Grip Lat Pulldown', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'T-Bar Row', sets: '3', reps: '10', rest: '90 sec', note: 'Chest on pad, drive elbows back' },
+    { name: 'Seated Cable Row', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Preacher Curl', sets: '3', reps: '10', rest: '60 sec', note: 'No momentum, full squeeze at top' },
+    { name: 'DB Concentration Curl', sets: '3', reps: '12 each', rest: '45 sec', note: '' },
+    { name: 'Reverse Curl (Barbell)', sets: '2', reps: '15', rest: '45 sec', note: 'Brachioradialis hit' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster at level 8–10. Maintain heart rate 140–155 bpm.',
+  note: 'Focus on mind-muscle connection with back exercises. Lighter weight with full range beats heavy with partial.'
+},
+{
+  id: 'BB4',
+  name: 'Cable Back Attack + Arm Superset',
+  muscles: 'Lats, Mid-Back, Biceps, Brachialis',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill jog 5.5 mph',
+    'Arm circles x 20',
+    'Band pull-apart x 20',
+    'Dead hang 30 sec x 2'
+  ],
+  exercises: [
+    { name: 'Cable Pullover', sets: '4', reps: '15', rest: '60 sec', note: 'Lat isolation, arms straight' },
+    { name: 'Close-Grip Lat Pulldown', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'High Cable Row (bilateral)', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Machine Row', sets: '3', reps: '12', rest: '60 sec', note: 'Controlled squeeze' },
+    { name: 'EZ-Bar Curl (superset w/ below)', sets: '3', reps: '10', rest: '—', note: '' },
+    { name: 'Cable Hammer Curl', sets: '3', reps: '12', rest: '75 sec', note: 'Superset with above' },
+    { name: '21s (Barbell Curl)', sets: '2', reps: '21', rest: '90 sec', note: '7 lower, 7 upper, 7 full range' },
+  ],
+  finisher: '<strong>Ladder:</strong> 10-9-8-7-6-5-4-3-2-1 — Band curls + inverted rows. No rest between rounds.',
+  note: 'The 21s should be done with lighter weight. This finisher will burn out the biceps completely.'
+},
+{
+  id: 'BB5',
+  name: 'Rack Pull Strength + Compound Back',
+  muscles: 'Traps, Upper Back, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min incline treadmill walk 3 mph',
+    'Trap shrugs bodyweight x 15',
+    'Band face pull x 20',
+    'Thoracic extension on foam roller'
+  ],
+  exercises: [
+    { name: 'Rack Pull (just below knee)', sets: '4', reps: '5', rest: '3 min', note: 'Heavy emphasis on traps and upper back' },
+    { name: 'Barbell Shrug', sets: '4', reps: '12', rest: '60 sec', note: 'Hold contraction 2 sec at top' },
+    { name: 'Meadows Row', sets: '3', reps: '10 each', rest: '75 sec', note: 'Landmine row, great for lats and teres' },
+    { name: 'Reverse Fly (Machine)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Alternating DB Curl', sets: '3', reps: '10 each', rest: '60 sec', note: 'Supinate at top' },
+    { name: 'Cable Curl (both arms)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 12 min run — 2 min easy / 1 min hard intervals. Repeat 4x.',
+  note: 'Rack pulls allow you to go heavier than conventional deadlifts. Great for trap and upper back mass.'
+},
+{
+  id: 'BB6',
+  name: 'Superset Back Hypertrophy Day',
+  muscles: 'Lats, Mid-Back, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster level 7',
+    'Scapular retractions x 15',
+    'Band bicep curl x 20',
+    'Arm cross stretches'
+  ],
+  exercises: [
+    { name: 'Pull-Up + Lat Pulldown (superset)', sets: '4', reps: '6 + 10', rest: '90 sec', note: 'Go to failure on pull-ups, finish with machine' },
+    { name: 'DB Row + Cable Row (superset)', sets: '3', reps: '10 + 12', rest: '90 sec', note: '' },
+    { name: 'Straight-Arm Pulldown', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'DB Incline Curl + Hammer Curl (superset)', sets: '3', reps: '10 + 12', rest: '75 sec', note: '' },
+    { name: 'Band Bicep 100s', sets: '1', reps: '100 total', rest: '—', note: 'Take breaks as needed, do not stop fully' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill at moderate 6 mph. Steady state, keep HR 130–145.',
+  note: 'Superset structure increases volume in less time. This is a hypertrophy-focused session.'
+},
+{
+  id: 'BB7',
+  name: 'Back Width Focus + Curl Strength',
+  muscles: 'Lats, Teres Major, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min row machine (moderate)',
+    'Dead hang 20 sec x 3',
+    'Band pull-apart x 15',
+    'Cat-cow x 10'
+  ],
+  exercises: [
+    { name: 'Weighted Pull-Up', sets: '5', reps: '5', rest: '2 min', note: 'Progressive overload key here' },
+    { name: 'Lat Pulldown (Underhand)', sets: '4', reps: '10', rest: '75 sec', note: 'Also works biceps' },
+    { name: 'Cable Straight-Arm Pulldown', sets: '4', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Single-Arm Cable Row', sets: '3', reps: '12 each', rest: '60 sec', note: 'Full rotation at bottom' },
+    { name: 'Barbell Curl', sets: '4', reps: '6 (heavy)', rest: '90 sec', note: 'Strength-focused, add weight each set' },
+    { name: 'Reverse Curl', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>AMRAP 6 min:</strong> 5 pull-ups + 10 inverted rows + 15 band curls.',
+  note: 'This session prioritizes lat width. Visualize pulling your elbows to your back pockets.'
+},
+{
+  id: 'BB8',
+  name: 'Bent-Over Row Focus + Peak Bicep',
+  muscles: 'Rhomboids, Lats, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike easy',
+    'Resistance band rows x 15',
+    'Thoracic rotation x 10 each',
+    'Hip hinge practice x 10'
+  ],
+  exercises: [
+    { name: 'Bent-Over Barbell Row', sets: '5', reps: '5', rest: '2 min', note: 'Stay at 45 degree angle, chest up' },
+    { name: 'Underhand Barbell Row', sets: '3', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Machine Row', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Face Pull', sets: '4', reps: '20', rest: '45 sec', note: 'Rear delt and rotator cuff health' },
+    { name: 'DB Spider Curl', sets: '3', reps: '12', rest: '60 sec', note: 'Lie prone on incline bench' },
+    { name: 'Cable Curl (single arm)', sets: '3', reps: '15 each', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 10 min row machine — 30 sec sprint, 90 sec easy. Repeat 5x.',
+  note: 'Bent-over row is your main strength indicator. Track the weight and aim to add 2.5 lbs per session.'
+},
+{
+  id: 'BB9',
+  name: 'High-Volume Back Hypertrophy',
+  muscles: 'Full Back, Biceps, Traps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill 5 mph',
+    'Band pull-apart x 20',
+    'Scapular push-ups x 10',
+    'Arm swings x 20'
+  ],
+  exercises: [
+    { name: 'Lat Pulldown (4 grip variations)', sets: '4', reps: '10 each grip', rest: '60 sec', note: 'Wide, close, underhand, neutral' },
+    { name: 'Cable Row (4 variations)', sets: '4', reps: '10 each', rest: '60 sec', note: 'V-bar, wide, single, cross-body' },
+    { name: 'DB Row', sets: '3', reps: '15 each', rest: '45 sec', note: '' },
+    { name: 'Straight-Arm Pulldown', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Curl Circuit', sets: '3', reps: '10 each movement', rest: '75 sec', note: 'Barbell, hammer, reverse, cable — no rest between' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster level 9. Maintain steady pace.',
+  note: 'High-volume day. Weights should be moderate — this is about total work and time under tension.'
+},
+{
+  id: 'BB10',
+  name: 'Deadlift Variation Day',
+  muscles: 'Back, Glutes, Biceps',
+  category: 'Back & Biceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min incline walk',
+    'Glute bridge x 20',
+    'Band pull-apart x 15',
+    'Hip circle x 10 each'
+  ],
+  exercises: [
+    { name: 'Sumo Deadlift', sets: '4', reps: '5', rest: '2.5 min', note: 'Wide stance, targets inner hamstring and glute' },
+    { name: 'Romanian Deadlift', sets: '3', reps: '10', rest: '90 sec', note: 'After heavy sumo, this is moderate weight' },
+    { name: 'Single-Leg Romanian Deadlift (DB)', sets: '3', reps: '10 each', rest: '60 sec', note: 'Balance and unilateral strength' },
+    { name: 'Pull-Up', sets: '3', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'Barbell Curl', sets: '3', reps: '8', rest: '75 sec', note: 'Strength-focused' },
+    { name: 'DB Hammer Curl', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 1 mile time trial on treadmill. Track your time — this is your benchmark.',
+  note: 'The 1-mile time trial is part of your marathon prep. Log your time each time this workout appears.'
+},
+
+// ===== CHEST & TRICEPS EMPHASIS (10 workouts) =====
+{
+  id: 'CT1',
+  name: 'Bench Press Strength + Tricep Blast',
+  muscles: 'Chest, Triceps, Front Delts',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill 5 mph',
+    'Band pull-apart x 20',
+    'Push-up x 15',
+    'Empty bar bench press x 10'
+  ],
+  exercises: [
+    { name: 'Flat Barbell Bench Press', sets: '5', reps: '5', rest: '2.5 min', note: 'Primary strength lift. Log weight.' },
+    { name: 'Incline DB Press', sets: '4', reps: '8', rest: '90 sec', note: 'Upper chest emphasis' },
+    { name: 'Cable Fly (mid chest)', sets: '3', reps: '15', rest: '60 sec', note: 'Squeeze at center' },
+    { name: 'Dip (weighted)', sets: '4', reps: '8', rest: '90 sec', note: 'Lean forward for chest, upright for tricep' },
+    { name: 'Close-Grip Bench Press', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Tricep Pushdown (cable, rope)', sets: '3', reps: '15', rest: '45 sec', note: 'Flare hands at bottom' },
+    { name: 'Skull Crusher', sets: '3', reps: '12', rest: '60 sec', note: 'EZ bar, control eccentric' },
+  ],
+  finisher: '<strong>Cardio:</strong> 12 min — 1 min sprint at 9 mph, 2 min jog at 5.5 mph. Repeat 4x.',
+  note: 'Bench press is your primary indicator for chest and pressing strength. Add 5 lbs when you hit all 5 reps.'
+},
+{
+  id: 'CT2',
+  name: 'Upper Chest Domination + Tricep Volume',
+  muscles: 'Upper Chest, Triceps, Shoulders',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster level 7',
+    'Band chest opener x 15',
+    'Shoulder rotation x 10',
+    'Push-up x 15'
+  ],
+  exercises: [
+    { name: 'Incline Barbell Press', sets: '5', reps: '5', rest: '2.5 min', note: '30–45 degree incline' },
+    { name: 'Low-to-High Cable Fly', sets: '4', reps: '12', rest: '60 sec', note: 'Targets clavicular pec' },
+    { name: 'Incline DB Fly', sets: '3', reps: '12', rest: '60 sec', note: 'Full stretch at bottom' },
+    { name: 'Flat DB Press', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Overhead Tricep Extension (DB)', sets: '4', reps: '12', rest: '60 sec', note: 'Long head emphasis' },
+    { name: 'Tricep Kickback (cable)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Push-up Ladder:</strong> 20-15-10-10-15-20. Rest 60 sec between sets. Wide, normal, diamond grip.',
+  note: 'Upper chest is often underdeveloped. Prioritize it here — it creates the full, powerful chest look.'
+},
+{
+  id: 'CT3',
+  name: 'Fly & Press Superset + Tricep Strength',
+  muscles: 'Chest (all heads), Triceps',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min light jog',
+    'Band fly x 15',
+    'Push-up x 10',
+    'Arm circle x 20'
+  ],
+  exercises: [
+    { name: 'DB Press + DB Fly (superset)', sets: '4', reps: '10 + 12', rest: '90 sec', note: 'No rest between exercises' },
+    { name: 'Cable Crossover (low to high)', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Push-Up (feet elevated)', sets: '3', reps: 'Max', rest: '75 sec', note: '' },
+    { name: 'Close-Grip Bench', sets: '4', reps: '8', rest: '90 sec', note: 'Tricep strength primary' },
+    { name: 'Skull Crusher + Press (superset)', sets: '3', reps: '10 + 10', rest: '75 sec', note: '' },
+    { name: 'Band Tricep Pushdown', sets: '3', reps: '25', rest: '30 sec', note: 'Burnout set' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min row machine — moderate steady pace.',
+  note: 'Superset structure maximizes chest pump and time efficiency.'
+},
+{
+  id: 'CT4',
+  name: 'Cable-Only Chest Sculpt + Tricep Circuit',
+  muscles: 'Chest, Triceps, Serratus',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill',
+    'Resistance band chest open x 15',
+    'Scapular push-up x 10',
+    'Thoracic extension'
+  ],
+  exercises: [
+    { name: 'Cable Chest Press (low pulley)', sets: '4', reps: '12', rest: '75 sec', note: 'Great mind-muscle connection' },
+    { name: 'Cable Fly (3 angles — high/mid/low)', sets: '3', reps: '12 each angle', rest: '60 sec', note: '36 total reps per set' },
+    { name: 'Cable Crossover (arms straight)', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Tricep Rope Pushdown', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Overhead Cable Extension', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Single-Arm Cable Kickback', sets: '3', reps: '15 each', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min StairMaster. First 10 min moderate, last 10 min push hard.',
+  note: 'Cable work provides constant tension throughout the range of motion — key for hypertrophy.'
+},
+{
+  id: 'CT5',
+  name: 'Dip & Fly Day + Pushdown Pyramid',
+  muscles: 'Chest, Triceps, Anterior Delt',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike',
+    'Shoulder shrugs x 15',
+    'Push-up x 15',
+    'Chest stretch on post 30 sec each'
+  ],
+  exercises: [
+    { name: 'Weighted Dip', sets: '5', reps: '6', rest: '2 min', note: 'Strength focus — forward lean for chest' },
+    { name: 'Incline DB Fly', sets: '4', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Flat DB Press', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Pec Deck Machine', sets: '3', reps: '15', rest: '45 sec', note: 'Full squeeze at center' },
+    { name: 'Tricep Pushdown (pyramid)', sets: '4', reps: '20-15-10-8', rest: '60 sec', note: 'Increase weight each set' },
+    { name: 'Diamond Push-Up', sets: '3', reps: 'Max', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>HIIT:</strong> 8 rounds — 20 sec jump rope sprint, 10 sec rest.',
+  note: 'Weighted dips are one of the best compound chest/tricep builders. Prioritize them heavy today.'
+},
+{
+  id: 'CT6',
+  name: 'Decline Press + Tricep Mass',
+  muscles: 'Lower Chest, Triceps',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill jog',
+    'Chest dips bodyweight x 10',
+    'Band pull-apart x 20',
+    'Arm swing x 20'
+  ],
+  exercises: [
+    { name: 'Decline Barbell Bench', sets: '4', reps: '8', rest: '2 min', note: 'Lower chest separation' },
+    { name: 'Flat DB Press', sets: '3', reps: '12', rest: '90 sec', note: '' },
+    { name: 'High-to-Low Cable Fly', sets: '3', reps: '15', rest: '60 sec', note: 'Targets lower chest' },
+    { name: 'Bodyweight Dip', sets: '3', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'Skull Crusher (EZ bar)', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Tricep Overhead Extension (cable)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Tricep 100s (band)', sets: '1', reps: '100', rest: '—', note: 'Take breaks as needed' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min treadmill, incline 6%, speed 3.8 mph. Brisk incline walk.',
+  note: 'Decline press can feel awkward at first. Use a spotter when going heavy.'
+},
+{
+  id: 'CT7',
+  name: 'Push Day Power',
+  muscles: 'Chest, Shoulders, Triceps',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster',
+    'Push-up x 15',
+    'Band pull-apart x 20',
+    'Rotator cuff rotation band x 15'
+  ],
+  exercises: [
+    { name: 'Flat Bench Press', sets: '3', reps: '8', rest: '2 min', note: '' },
+    { name: 'Overhead DB Press', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Incline DB Press', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Lateral Raise', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Close-Grip Bench', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Overhead Tricep Extension', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 3 x 600m treadmill run at race pace (8–9 mph). Rest 2 min between.',
+  note: 'Classic push day — all three push muscles hit in one session.'
+},
+{
+  id: 'CT8',
+  name: 'Machine Chest + Tricep Isolation',
+  muscles: 'Chest, Triceps',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill',
+    'Band chest fly x 15',
+    'Shoulder circle x 10',
+    'Push-up x 10'
+  ],
+  exercises: [
+    { name: 'Machine Chest Press', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Pec Deck Fly', sets: '4', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Machine Incline Press', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Cable Crossover', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Machine Tricep Extension', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Cable Pushdown (bar)', sets: '3', reps: '20', rest: '30 sec', note: 'Burnout' },
+  ],
+  finisher: '<strong>EMOM 10 min:</strong> 15 push-ups every minute on the minute.',
+  note: 'Machine day removes stabilizer fatigue — useful when free weight joints need a break.'
+},
+{
+  id: 'CT9',
+  name: 'Bench + Dip Strength Block',
+  muscles: 'Chest, Triceps, Core Stability',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Empty bar press x 15',
+    'Band pull-apart x 20',
+    'Wrist circles x 10'
+  ],
+  exercises: [
+    { name: 'Barbell Bench (work to 3 rep max)', sets: '5', reps: '8-6-4-3-3', rest: '2–3 min', note: 'Progressive overload day' },
+    { name: 'Weighted Dip', sets: '4', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Cable Fly', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Tricep Skull Crusher', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Cable Overhead Extension', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 12 min StairMaster max effort.',
+  note: 'Strength progression day. Log every set and weight — this is how you track growth.'
+},
+{
+  id: 'CT10',
+  name: 'High-Rep Chest Pump Day',
+  muscles: 'Chest, Triceps, Serratus',
+  category: 'Chest & Triceps',
+  tag: 'emphasis',
+  warmup: [
+    '5 min light bike',
+    'Arm circle x 20',
+    'Push-up x 20',
+    'Band chest opener x 15'
+  ],
+  exercises: [
+    { name: 'DB Flat Press', sets: '4', reps: '15-20', rest: '60 sec', note: 'Moderate weight, full range' },
+    { name: 'Incline Push-Up', sets: '3', reps: '25', rest: '45 sec', note: '' },
+    { name: 'Cable Fly (all 3 angles)', sets: '3', reps: '15 each angle', rest: '60 sec', note: '' },
+    { name: 'Dips (bodyweight)', sets: '3', reps: 'Max', rest: '60 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Diamond Push-Up', sets: '3', reps: '20', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min easy run at 6 mph. Build aerobic base.',
+  note: 'High-rep pump day. Light-moderate weight. Focus on feel over load.'
+},
+
+// ===== SHOULDERS & LEGS EMPHASIS (10 workouts) =====
+{
+  id: 'SL1',
+  name: 'Overhead Press + Squat Power',
+  muscles: 'Shoulders, Quads, Glutes',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike, moderate',
+    'Empty bar overhead press x 10',
+    'Goblet squat x 10',
+    'Hip flexor stretch 30 sec each'
+  ],
+  exercises: [
+    { name: 'Barbell Back Squat', sets: '5', reps: '5', rest: '3 min', note: 'Primary lower body strength. Depth at parallel or below.' },
+    { name: 'Standing Barbell OHP', sets: '4', reps: '6', rest: '2 min', note: 'Strict press — no leg drive' },
+    { name: 'DB Lateral Raise', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Leg Press', sets: '3', reps: '12', rest: '90 sec', note: '' },
+    { name: 'DB Shoulder Press (seated)', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Front Raise', sets: '3', reps: '12', rest: '45 sec', note: '' },
+    { name: 'Leg Extension', sets: '3', reps: '15', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 2 mile treadmill run. Goal pace — 9 min/mile or faster.',
+  note: 'Squat and OHP are the two main strength indicators. Both should be logged and progressed weekly.'
+},
+{
+  id: 'SL2',
+  name: 'Split Squat + Lateral Delt Focus',
+  muscles: 'Quads, Glutes, Medial Delts',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster',
+    'Hip circle x 10 each',
+    'Band lateral raise x 15',
+    'Calf raises x 20'
+  ],
+  exercises: [
+    { name: 'Bulgarian Split Squat (DB)', sets: '4', reps: '10 each', rest: '90 sec', note: 'Most underrated leg exercise' },
+    { name: 'DB Lateral Raise', sets: '5', reps: '15', rest: '45 sec', note: 'Shoulder width is built here' },
+    { name: 'Hack Squat', sets: '3', reps: '12', rest: '90 sec', note: '' },
+    { name: 'Cable Lateral Raise', sets: '3', reps: '15 each', rest: '45 sec', note: 'Constant tension' },
+    { name: 'Walking Lunge (DB)', sets: '3', reps: '20 steps', rest: '75 sec', note: '' },
+    { name: 'Upright Row (cable)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Calf Raise (standing, heavy)', sets: '4', reps: '15', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>HIIT:</strong> 6 rounds of 30 sec step-ups on StairMaster + 30 sec rest.',
+  note: 'Bulgarian split squats expose imbalances between legs. Start lighter than you think.'
+},
+{
+  id: 'SL3',
+  name: 'Hamstring & Rear Delt Day',
+  muscles: 'Hamstrings, Glutes, Rear Delts',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill walk, incline 5%',
+    'Lying hamstring stretch 30 sec',
+    'Band pull-apart x 20',
+    'Glute bridge x 15'
+  ],
+  exercises: [
+    { name: 'Romanian Deadlift', sets: '4', reps: '10', rest: '2 min', note: '' },
+    { name: 'Lying Leg Curl', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Seated Leg Curl', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Good Morning', sets: '3', reps: '12', rest: '75 sec', note: 'Light weight, feel the hamstring' },
+    { name: 'Face Pull', sets: '4', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Rear Delt Fly (machine)', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'DB Rear Delt Fly (incline bench)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min steady run at 6–6.5 mph. Marathon base building.',
+  note: 'Rear delts and hamstrings are often neglected. Today they are the priority.'
+},
+{
+  id: 'SL4',
+  name: 'Quad Domination + Front Delt',
+  muscles: 'Quads, Front Delts, Calves',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike',
+    'Leg extension x 15 (light)',
+    'Band overhead press x 10',
+    'Hip flexor lunge stretch 30 sec each'
+  ],
+  exercises: [
+    { name: 'Front Squat', sets: '4', reps: '6', rest: '2.5 min', note: 'Quad dominant, upright torso' },
+    { name: 'Leg Press (narrow stance)', sets: '4', reps: '12', rest: '90 sec', note: 'High foot placement' },
+    { name: 'Leg Extension', sets: '4', reps: '15', rest: '60 sec', note: 'Isolation, full lockout' },
+    { name: 'DB Front Raise', sets: '4', reps: '12', rest: '45 sec', note: '' },
+    { name: 'Plate Front Raise', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Seated Calf Raise', sets: '4', reps: '20', rest: '60 sec', note: '' },
+    { name: 'Standing Calf Raise', sets: '4', reps: '15', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 10 min StairMaster at max effort.',
+  note: 'Front squats require more upper back strength. Work up to moderate weight with perfect form.'
+},
+{
+  id: 'SL5',
+  name: 'Glute & Shoulder Round Day',
+  muscles: 'Glutes, All 3 Delt Heads',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill jog',
+    'Hip circle x 15 each',
+    'Band lateral raise x 15',
+    'Hip thrust bodyweight x 15'
+  ],
+  exercises: [
+    { name: 'Barbell Hip Thrust', sets: '4', reps: '10', rest: '90 sec', note: 'Squeeze glutes hard at top' },
+    { name: 'Cable Hip Kickback', sets: '3', reps: '15 each', rest: '60 sec', note: '' },
+    { name: 'DB Sumo Squat', sets: '3', reps: '15', rest: '75 sec', note: 'Wide stance, inner quad and glute' },
+    { name: 'Arnold Press', sets: '4', reps: '10', rest: '75 sec', note: 'Rotation trains all delt heads' },
+    { name: 'Lateral Raise + Front Raise (combo)', sets: '3', reps: '12 + 12', rest: '75 sec', note: '' },
+    { name: 'Face Pull', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Donkey Calf Raise', sets: '4', reps: '20', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 1.5 miles at moderate pace (8–9 min/mile).',
+  note: 'Hip thrusts are the gold standard for glute development. Track the bar weight.'
+},
+{
+  id: 'SL6',
+  name: 'Box Jump + Power Shoulder',
+  muscles: 'Full Legs (power), Shoulders',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog at 5 mph',
+    'Jump rope 2 min',
+    'Leg swing x 10 each',
+    'Band press x 10'
+  ],
+  exercises: [
+    { name: 'Box Jump', sets: '5', reps: '5', rest: '2 min', note: 'Explosive, land softly, step down' },
+    { name: 'Goblet Squat', sets: '3', reps: '15', rest: '75 sec', note: '' },
+    { name: 'Trap Bar Deadlift (if available)', sets: '3', reps: '8', rest: '2 min', note: 'Or use hex plates on barbell' },
+    { name: 'DB Shoulder Press', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Upright Row', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Lateral Raise (drop set)', sets: '3', reps: '12/10/8', rest: '60 sec', note: 'Drop weight each mini-set' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill at 6 mph — steady aerobic pace.',
+  note: 'Box jumps develop explosive power — key for athletic performance and marathon running economy.'
+},
+{
+  id: 'SL7',
+  name: 'Leg Press + Machine Shoulder Day',
+  muscles: 'Quads, Hamstrings, Shoulders',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike moderate',
+    'Leg swing x 10',
+    'Light shoulder press x 15',
+    'Hip flexor lunge 30 sec'
+  ],
+  exercises: [
+    { name: 'Leg Press (4 foot positions)', sets: '4', reps: '12 each position', rest: '90 sec', note: 'High, low, wide, narrow' },
+    { name: 'Leg Curl', sets: '4', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Leg Extension', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Machine Shoulder Press', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Machine Lateral Raise', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Calf Press on Leg Press', sets: '4', reps: '20', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>StairMaster:</strong> 15 min, level 10 for first 8 min, level 8 last 7.',
+  note: 'Machine day for lower body — great for drop sets and isolation without balance fatigue.'
+},
+{
+  id: 'SL8',
+  name: 'Squat Depth + 3D Shoulder',
+  muscles: 'Quads, Glutes, All Delts',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Banded squat x 15',
+    'Band pull-apart x 20',
+    'Hip hinge x 10'
+  ],
+  exercises: [
+    { name: 'Pause Squat (2 sec at bottom)', sets: '4', reps: '6', rest: '2.5 min', note: 'Increases time under tension and depth' },
+    { name: 'Step-Up (DB)', sets: '3', reps: '12 each', rest: '75 sec', note: 'Unilateral strength and glute' },
+    { name: 'Glute Bridge (barbell)', sets: '3', reps: '15', rest: '75 sec', note: '' },
+    { name: 'Standing DB OHP', sets: '4', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Lateral Raise', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Rear Delt Fly', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Face Pull', sets: '3', reps: '20', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 5K at your goal marathon pace (10–12 min/mile to start). Track time.',
+  note: 'Pause squats are brutally effective. They eliminate the stretch reflex — making your muscles do all the work.'
+},
+{
+  id: 'SL9',
+  name: 'Lunge Circuit + Shoulder Superset',
+  muscles: 'Legs (all), Shoulders',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min incline walk',
+    'Reverse lunge x 10 each',
+    'Band press x 15',
+    'Hip circle x 10'
+  ],
+  exercises: [
+    { name: 'Barbell Walking Lunge', sets: '4', reps: '20 steps', rest: '90 sec', note: '' },
+    { name: 'Reverse Lunge (DB)', sets: '3', reps: '12 each', rest: '75 sec', note: '' },
+    { name: 'Lateral Lunge', sets: '3', reps: '12 each', rest: '75 sec', note: 'Groin and inner quad' },
+    { name: 'OHP + Lateral Raise (superset)', sets: '4', reps: '10 + 15', rest: '75 sec', note: '' },
+    { name: 'Face Pull + Rear Fly (superset)', sets: '3', reps: '20 + 15', rest: '60 sec', note: '' },
+    { name: 'Calf Raise', sets: '4', reps: '20', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min steady treadmill jog at 6–6.5 mph.',
+  note: 'Lunge variations hit the legs at different angles. Great for size and functional strength.'
+},
+{
+  id: 'SL10',
+  name: 'Heavy Leg Day + Shoulder Strength',
+  muscles: 'Quads, Hamstrings, Shoulders',
+  category: 'Shoulders & Legs',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike',
+    'Goblet squat x 10',
+    'Band press x 10',
+    'Hip swing x 10 each'
+  ],
+  exercises: [
+    { name: 'Barbell Squat (work to 1RM 85%)', sets: '5', reps: '5', rest: '3 min', note: 'Log this. This is your primary strength test.' },
+    { name: 'Leg Press', sets: '3', reps: '15', rest: '90 sec', note: 'After heavy squats, this is accessory' },
+    { name: 'Barbell OHP (work to 5RM)', sets: '5', reps: '5', rest: '2 min', note: '' },
+    { name: 'Leg Curl', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Lateral Raise', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Calf Raise', sets: '3', reps: '20', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 1 mile at goal race pace. Log your time.',
+  note: 'Heavy day. Do not skip the warm-up sets on squat. Work up gradually to working weight.'
+},
+
+// ===== GLUTES, HAMSTRINGS & CORE EMPHASIS (8 workouts) =====
+{
+  id: 'GHC1',
+  name: 'Posterior Chain + Core Strength',
+  muscles: 'Glutes, Hamstrings, Core',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill incline walk',
+    'Glute bridge x 20',
+    'Dead bug x 10 each',
+    'Hip flexor stretch 30 sec each'
+  ],
+  exercises: [
+    { name: 'Barbell Hip Thrust', sets: '5', reps: '8', rest: '90 sec', note: 'Primary glute movement' },
+    { name: 'Romanian Deadlift', sets: '4', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Lying Leg Curl', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Plank', sets: '4', reps: '45 sec', rest: '30 sec', note: 'Perfect form — no sagging' },
+    { name: 'Hanging Leg Raise', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Cable Woodchop', sets: '3', reps: '15 each', rest: '45 sec', note: '' },
+    { name: 'Ab Wheel Rollout', sets: '3', reps: '10', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster. Great for glute activation carryover.',
+  note: 'Core work is non-negotiable for marathon running. Strong core = better running economy.'
+},
+{
+  id: 'GHC2',
+  name: 'Glute Isolation + Rotational Core',
+  muscles: 'Glutes, Abs, Obliques',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Clam shells x 15 each',
+    'Bird dog x 10 each',
+    'Hip circle x 10'
+  ],
+  exercises: [
+    { name: 'Cable Glute Kickback', sets: '4', reps: '15 each', rest: '45 sec', note: '' },
+    { name: 'Sumo Deadlift', sets: '4', reps: '8', rest: '2 min', note: '' },
+    { name: 'Single-Leg Hip Thrust', sets: '3', reps: '12 each', rest: '75 sec', note: '' },
+    { name: 'Russian Twist (weighted)', sets: '4', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Side Plank', sets: '3', reps: '45 sec each', rest: '30 sec', note: '' },
+    { name: 'Pallof Press', sets: '3', reps: '15 each', rest: '45 sec', note: 'Anti-rotation core stability' },
+    { name: 'Bicycle Crunch', sets: '3', reps: '30', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill 6 mph steady jog.',
+  note: 'Pallof press is an underrated movement for runners. It trains the core to resist rotation — critical for endurance.'
+},
+{
+  id: 'GHC3',
+  name: 'Core Stability + Hamstring Curl Focus',
+  muscles: 'Core, Hamstrings, Lower Back',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike easy',
+    'Cat-cow x 10',
+    'Glute bridge x 15',
+    'Hamstring stretch 30 sec each'
+  ],
+  exercises: [
+    { name: 'Nordic Hamstring Curl', sets: '4', reps: '5', rest: '2 min', note: 'Very hard — use pad for knees' },
+    { name: 'Seated Leg Curl', sets: '4', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Good Morning', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Deadbug (weighted)', sets: '4', reps: '10 each', rest: '45 sec', note: '' },
+    { name: 'Hollow Body Hold', sets: '3', reps: '30 sec', rest: '30 sec', note: '' },
+    { name: 'GHD Sit-Up (or V-Up)', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Back Extension', sets: '3', reps: '15', rest: '60 sec', note: 'Spinal erector strength' },
+  ],
+  finisher: '<strong>Run:</strong> 2 mile run at easy pace — purely aerobic, feel good.',
+  note: 'Nordic curls are brutal but unmatched for hamstring strength and injury prevention in runners.'
+},
+{
+  id: 'GHC4',
+  name: 'Ab Circuit + Glute Push',
+  muscles: 'Core (all), Glutes',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster',
+    'Plank 30 sec',
+    'Hip thrust bodyweight x 20',
+    'Side plank 20 sec each'
+  ],
+  exercises: [
+    { name: 'Weighted Crunch (cable)', sets: '4', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Leg Raise (hanging)', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Plank with Reach', sets: '3', reps: '10 each', rest: '45 sec', note: '' },
+    { name: 'Barbell Hip Thrust', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Cable Pull-Through', sets: '3', reps: '15', rest: '60 sec', note: 'Hip hinge + glute squeeze' },
+    { name: 'Donkey Kick (cable)', sets: '3', reps: '15 each', rest: '45 sec', note: '' },
+    { name: 'Plank Hold', sets: '3', reps: '60 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>HIIT:</strong> 5 rounds — 30 sec mountain climbers, 30 sec rest.',
+  note: 'Mountain climbers combine core and cardio — perfect for your hybrid athlete goals.'
+},
+{
+  id: 'GHC5',
+  name: 'Functional Core + Hip Hinge Power',
+  muscles: 'Core, Glutes, Hamstrings, Lats',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill incline',
+    'Hip hinge bodyweight x 10',
+    'Bird dog x 10 each',
+    'Thoracic rotation x 10 each'
+  ],
+  exercises: [
+    { name: 'Kettlebell Swing (or DB)', sets: '5', reps: '15', rest: '60 sec', note: 'Hip hinge explosive — great for power' },
+    { name: 'Romanian Deadlift (single leg)', sets: '4', reps: '10 each', rest: '75 sec', note: '' },
+    { name: 'Suitcase Carry (DB)', sets: '3', reps: '40 steps each', rest: '60 sec', note: 'Anti-lateral flexion core' },
+    { name: 'Farmer Carry', sets: '3', reps: '40 steps', rest: '60 sec', note: 'Grip and core stability' },
+    { name: 'Dead Bug', sets: '4', reps: '10 each', rest: '45 sec', note: '' },
+    { name: 'Side Plank', sets: '3', reps: '45 sec each', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min treadmill, 1% incline, 6–7 mph. Steady aerobic.',
+  note: 'Functional movements like carries and swings transfer directly to running economy and injury prevention.'
+},
+{
+  id: 'GHC6',
+  name: 'Heavy Core + Adductor Day',
+  muscles: 'Core, Inner Thighs, Glutes',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike',
+    'Lateral lunge x 10 each',
+    'Hip adductor stretch 30 sec',
+    'Plank 30 sec'
+  ],
+  exercises: [
+    { name: 'Cable Hip Adduction', sets: '4', reps: '15 each', rest: '45 sec', note: '' },
+    { name: 'Sumo Goblet Squat', sets: '4', reps: '15', rest: '75 sec', note: '' },
+    { name: 'Lateral Lunge (DB)', sets: '3', reps: '12 each', rest: '75 sec', note: '' },
+    { name: 'Ab Wheel Rollout', sets: '4', reps: '10', rest: '60 sec', note: '' },
+    { name: 'Hanging Knee Raise', sets: '4', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Russian Twist (weighted)', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Plank (add weight plate on back)', sets: '3', reps: '45 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>StairMaster:</strong> 20 min moderate, focus on glute activation with each step.',
+  note: 'Adductor work is often skipped. Strong inner thighs help stabilize hips during long runs.'
+},
+{
+  id: 'GHC7',
+  name: 'Core Athletic Conditioning',
+  muscles: 'Core, Full Body Stability',
+  category: 'Glutes & Core',
+  tag: 'conditioning',
+  warmup: [
+    '5 min jog',
+    'Jump rope 2 min',
+    'Plank 30 sec',
+    'Dynamic stretching'
+  ],
+  exercises: [
+    { name: 'Medicine Ball Slam', sets: '4', reps: '15', rest: '45 sec', note: 'Explosive core and shoulder' },
+    { name: 'Landmine Rotation', sets: '3', reps: '12 each', rest: '45 sec', note: 'Rotational core strength' },
+    { name: 'TRX (or ring) Fallout', sets: '3', reps: '10', rest: '60 sec', note: 'Advanced anti-extension core' },
+    { name: 'Barbell Rollout', sets: '3', reps: '8', rest: '60 sec', note: 'Use a barbell as ab wheel' },
+    { name: 'Copenhagen Plank', sets: '3', reps: '30 sec each', rest: '30 sec', note: 'Adductor and core' },
+    { name: 'Pallof Press (all angles)', sets: '3', reps: '12 each angle', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 3 miles easy. This is a long easy run to build your base.',
+  note: 'This is a performance-based core session — not aesthetics. Every movement has a direct running benefit.'
+},
+{
+  id: 'GHC8',
+  name: 'Glute Max + Core Endurance',
+  muscles: 'Glutes, Core Endurance',
+  category: 'Glutes & Core',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill walk incline',
+    'Band clam x 15 each',
+    'Glute bridge x 20',
+    'Hollow body 20 sec'
+  ],
+  exercises: [
+    { name: 'Barbell Hip Thrust (heavy)', sets: '5', reps: '5', rest: '2 min', note: 'Strength focus on glute' },
+    { name: 'Single-Leg Hip Thrust', sets: '3', reps: '15 each', rest: '60 sec', note: '' },
+    { name: 'Cable Glute Kickback', sets: '3', reps: '20 each', rest: '45 sec', note: '' },
+    { name: 'Plank Circuit', sets: '3', reps: 'Front 45 / each side 45', rest: '30 sec', note: 'Hold all three in sequence' },
+    { name: 'V-Up', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Dragon Flag (or tuck)', sets: '3', reps: '8', rest: '75 sec', note: 'Advanced core strength' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill 6 mph. Marathon base run.',
+  note: 'Dragon flags are an advanced movement. If they are too difficult, do straight leg raises with extra control.'
+},
+
+// ===== UPPER BODY EMPHASIS (7 workouts) =====
+{
+  id: 'UB1',
+  name: 'Upper Body Power Compound Day',
+  muscles: 'Chest, Back, Shoulders, Arms',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster',
+    'Band pull-apart x 20',
+    'Push-up x 10',
+    'Scapular pull-up x 10'
+  ],
+  exercises: [
+    { name: 'Bench Press', sets: '4', reps: '6', rest: '2 min', note: '' },
+    { name: 'Barbell Row', sets: '4', reps: '6', rest: '2 min', note: '' },
+    { name: 'OHP (standing)', sets: '3', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Pull-Up', sets: '3', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'DB Curl', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Skull Crusher', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 12 min treadmill — 1 min sprint, 2 min jog. 4 rounds.',
+  note: 'All major upper body compound lifts in one session. Great for testing your overall pressing and pulling strength.'
+},
+{
+  id: 'UB2',
+  name: 'Push + Pull Superset Day',
+  muscles: 'Full Upper Body',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Band press and pull x 15 each',
+    'Arm circle x 20',
+    'Shoulder rotation x 10'
+  ],
+  exercises: [
+    { name: 'Bench Press + Pull-Up (superset)', sets: '4', reps: '8 + 8', rest: '90 sec', note: '' },
+    { name: 'DB OHP + DB Row (superset)', sets: '4', reps: '10 + 10', rest: '75 sec', note: '' },
+    { name: 'Incline Press + Lat Pulldown (superset)', sets: '3', reps: '10 + 12', rest: '75 sec', note: '' },
+    { name: 'Cable Fly + Face Pull (superset)', sets: '3', reps: '15 + 15', rest: '60 sec', note: '' },
+    { name: 'Curl + Pushdown (superset)', sets: '3', reps: '12 + 15', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min steady run at 6 mph.',
+  note: 'Push/pull superset structure maximizes volume in shorter time. This session has excellent muscle balance.'
+},
+{
+  id: 'UB3',
+  name: 'Shoulder-Centric Upper Body',
+  muscles: 'Shoulders, Chest, Back, Arms',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min bike',
+    'Band shoulder circuit x 15 each',
+    'Arm circle x 20',
+    'Rotator cuff band x 15'
+  ],
+  exercises: [
+    { name: 'Standing Barbell OHP', sets: '5', reps: '5', rest: '2 min', note: '' },
+    { name: 'DB Lateral Raise', sets: '4', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Bench Press', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Cable Row', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Arnold Press', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Hammer Curl', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>HIIT:</strong> 10 rounds — 20 sec burpee, 10 sec rest.',
+  note: 'OHP is the king of shoulder mass. The other movements support shoulder health and upper body balance.'
+},
+{
+  id: 'UB4',
+  name: 'Arms Specialization Day',
+  muscles: 'Biceps, Triceps, Forearms',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min treadmill jog',
+    'Band curl x 20',
+    'Band pushdown x 20',
+    'Wrist circles x 15'
+  ],
+  exercises: [
+    { name: 'Barbell Curl', sets: '4', reps: '8 (heavy)', rest: '90 sec', note: '' },
+    { name: 'Skull Crusher', sets: '4', reps: '8 (heavy)', rest: '90 sec', note: '' },
+    { name: 'Incline DB Curl + OH Tricep Extension (superset)', sets: '3', reps: '12 + 12', rest: '75 sec', note: '' },
+    { name: 'Hammer Curl + Rope Pushdown (superset)', sets: '3', reps: '12 + 15', rest: '75 sec', note: '' },
+    { name: 'Cable Curl (peak)', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Reverse Curl', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Wrist Curl (barbell)', sets: '3', reps: '20', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill steady. Marathon pace practice.',
+  note: 'Arms day — lean bulk arms look great at 180 lbs. Consistent direct arm work adds 1–2 inches over time.'
+},
+{
+  id: 'UB5',
+  name: 'Chest Heavy + Back Light + Arms',
+  muscles: 'Chest, Back, Arms',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min StairMaster',
+    'Push-up x 15',
+    'Band pull-apart x 20',
+    'Rotator cuff x 15'
+  ],
+  exercises: [
+    { name: 'Flat Bench Press', sets: '5', reps: '5', rest: '2.5 min', note: '' },
+    { name: 'Incline DB Press', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Pec Deck', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Lat Pulldown', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Cable Row', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Barbell Curl', sets: '3', reps: '10', rest: '60 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 1.5 miles moderate pace.',
+  note: 'Chest is primary, back is secondary, arms finish the session. Good balance of push and pull volume.'
+},
+{
+  id: 'UB6',
+  name: 'Back Heavy + Chest Light + Arms',
+  muscles: 'Back, Chest, Arms',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Dead hang x 30 sec',
+    'Band curl x 15',
+    'Push-up x 10'
+  ],
+  exercises: [
+    { name: 'Weighted Pull-Up', sets: '5', reps: '5', rest: '2 min', note: '' },
+    { name: 'Barbell Row', sets: '4', reps: '6', rest: '2 min', note: '' },
+    { name: 'T-Bar Row', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Cable Row', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Flat DB Press', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Hammer Curl', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'Skull Crusher', sets: '3', reps: '12', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster level 9.',
+  note: 'Back is primary today. Pull-ups and rows build the wide, thick back of a hybrid athlete.'
+},
+{
+  id: 'UB7',
+  name: 'Bodyweight + Dumbbell Upper Body',
+  muscles: 'Full Upper Body',
+  category: 'Upper Body',
+  tag: 'emphasis',
+  warmup: [
+    '5 min jog',
+    'Push-up x 10',
+    'Band pull-apart x 15',
+    'Shoulder rotation x 10'
+  ],
+  exercises: [
+    { name: 'Pull-Up (max reps, 5 sets)', sets: '5', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'Push-Up (max reps, 5 sets)', sets: '5', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'DB Row', sets: '4', reps: '15 each', rest: '60 sec', note: '' },
+    { name: 'DB OHP', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'DB Curl', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'DB Tricep Kickback', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 25 min easy treadmill run — long aerobic work.',
+  note: 'Bodyweight-dominant day gives joints a break from heavy loading while still building muscle.'
+},
+
+// ===== CONDITIONING / ATHLETIC (5 workouts) =====
+{
+  id: 'COND1',
+  name: 'CrossFit-Style Athletic Day',
+  muscles: 'Full Body Athletic',
+  category: 'Conditioning',
+  tag: 'conditioning',
+  warmup: [
+    '5 min jog',
+    'Jump rope 2 min',
+    'Leg swing x 10 each',
+    'Dynamic stretch'
+  ],
+  exercises: [
+    { name: 'Power Clean (from hang)', sets: '5', reps: '3', rest: '2 min', note: 'Olympic lift — explosive hip drive' },
+    { name: 'Thruster (barbell squat + press)', sets: '4', reps: '8', rest: '90 sec', note: 'Moderate weight, full range' },
+    { name: 'Box Jump', sets: '4', reps: '6', rest: '75 sec', note: '' },
+    { name: 'Farmers Carry', sets: '4', reps: '50 steps', rest: '60 sec', note: '' },
+    { name: 'Battle Rope (if available)', sets: '3', reps: '30 sec', rest: '30 sec', note: 'Or use band slams' },
+  ],
+  finisher: '<strong>Conditioning WOD:</strong> 4 rounds — 400m run + 15 push-ups + 10 pull-ups. Record total time.',
+  note: 'This is your CrossFit-inspired session. Move fast, rest minimal, stay consistent. Log your WOD time.'
+},
+{
+  id: 'COND2',
+  name: 'Endurance Strength Circuit',
+  muscles: 'Full Body Endurance',
+  category: 'Conditioning',
+  tag: 'conditioning',
+  warmup: [
+    '5 min treadmill 5.5 mph',
+    'Dynamic lunge x 10 each',
+    'Push-up x 10',
+    'Arm circle x 20'
+  ],
+  exercises: [
+    { name: 'Circuit (4 rounds, no rest within round)', sets: '4', reps: 'See note', rest: '2 min between rounds', note: '10 goblet squats + 10 push-ups + 10 DB rows + 10 OHP + 10 lunges' },
+    { name: 'Sled Push (or sprint)', sets: '5', reps: '40m', rest: '90 sec', note: '' },
+    { name: 'Core Circuit', sets: '3', reps: '45 sec each', rest: '30 sec', note: 'Plank → side plank → hollow hold' },
+  ],
+  finisher: '<strong>Run:</strong> 2.5 mile run at comfortable conversational pace.',
+  note: 'Circuit work builds both strength endurance and cardiovascular fitness — key for your hybrid athlete goal.'
+},
+{
+  id: 'COND3',
+  name: 'Sprint Intervals + Strength',
+  muscles: 'Legs, Cardiovascular System',
+  category: 'Conditioning',
+  tag: 'conditioning',
+  warmup: [
+    '5 min jog at 5 mph',
+    'Leg swing x 10',
+    'High knees 30 sec',
+    'Butt kicks 30 sec'
+  ],
+  exercises: [
+    { name: 'Sprint Intervals (treadmill)', sets: '8', reps: '30 sec at 10–11 mph', rest: '90 sec walk', note: 'Push hard each sprint' },
+    { name: 'Goblet Squat (between sprints)', sets: '4', reps: '15', rest: '—', note: 'Do between sprint rest periods' },
+    { name: 'DB Row', sets: '4', reps: '15 each', rest: '—', note: 'Do between sprint rest periods' },
+    { name: 'Push-Up', sets: '4', reps: '20', rest: '—', note: 'Do between sprint rest periods' },
+  ],
+  finisher: '<strong>Cooldown Run:</strong> 1 mile easy at 5.5 mph.',
+  note: 'Sprint intervals are the most time-efficient cardio for fat loss and marathon speed development.'
+},
+{
+  id: 'COND4',
+  name: 'Strongman Conditioning',
+  muscles: 'Full Body Power Endurance',
+  category: 'Conditioning',
+  tag: 'conditioning',
+  warmup: [
+    '5 min jog',
+    'Hip circle x 10',
+    'Shoulder rotation x 10',
+    'Jump rope 2 min'
+  ],
+  exercises: [
+    { name: 'Farmers Carry (heavy)', sets: '5', reps: '40 steps', rest: '90 sec', note: '' },
+    { name: 'Suitcase Carry', sets: '4', reps: '40 steps each', rest: '75 sec', note: '' },
+    { name: 'Sandbag Carry (or heavy DB hug carry)', sets: '4', reps: '40 steps', rest: '75 sec', note: '' },
+    { name: 'Tire Flip simulation (Deadlift + push)', sets: '4', reps: '6', rest: '90 sec', note: 'Use trap bar or banded deadlift' },
+    { name: 'Plank', sets: '3', reps: '60 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster at high intensity.',
+  note: 'Loaded carries are incredibly functional and build total body strength and core endurance.'
+},
+{
+  id: 'COND5',
+  name: 'Aerobic Power Day',
+  muscles: 'Cardiovascular, Legs',
+  category: 'Conditioning',
+  tag: 'conditioning',
+  warmup: [
+    '5 min easy jog',
+    'Dynamic leg swings',
+    'Hip circle x 10',
+    'High knees 30 sec'
+  ],
+  exercises: [
+    { name: 'Tempo Run (treadmill)', sets: '1', reps: '25 min at 7–7.5 mph', rest: '—', note: 'Uncomfortable but sustainable — lactate threshold training' },
+    { name: 'Incline Walk Recovery', sets: '1', reps: '5 min at 3.5 mph incline 7%', rest: '—', note: '' },
+    { name: 'Calf Raise', sets: '4', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Box Step-Up', sets: '3', reps: '15 each', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Easy Jog:</strong> 10 min at 5 mph to cool down and build base volume.',
+  note: 'Tempo running is the most important workout for marathon performance. Prioritize form over speed.'
+},
+
+// ===== SATURDAY FULL BODY WORKOUTS (13 workouts) =====
+{
+  id: 'FB1',
+  name: 'Total Body Strength Day',
+  muscles: 'Full Body',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min treadmill easy jog',
+    'Arm circle x 20',
+    'Leg swing x 10 each',
+    'Squat to stand x 10',
+    'Band pull-apart x 20'
+  ],
+  exercises: [
+    { name: 'Barbell Squat', sets: '3', reps: '8', rest: '2 min', note: '' },
+    { name: 'Barbell Bench Press', sets: '3', reps: '8', rest: '2 min', note: '' },
+    { name: 'Deadlift', sets: '3', reps: '5', rest: '2.5 min', note: '' },
+    { name: 'Pull-Up', sets: '3', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'OHP', sets: '3', reps: '8', rest: '90 sec', note: '' },
+    { name: 'DB Curl', sets: '2', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '2', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Calf Raise', sets: '2', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Plank', sets: '2', reps: '45 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill run at comfortable pace. Marathon base.',
+  note: 'Classic total body strength. All major compound movements in one session. Log all weights.'
+},
+{
+  id: 'FB2',
+  name: 'Full Body Athletic Circuit',
+  muscles: 'Full Body Athletic',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min bike moderate',
+    'Dynamic stretch full body',
+    'Jump rope 2 min',
+    'Push-up x 10'
+  ],
+  exercises: [
+    { name: '5-Exercise Giant Set (4 rounds)', sets: '4', reps: '10 each, no rest within', rest: '2 min between rounds', note: 'Squat + Bench + Row + OHP + Deadlift — moderate weight' },
+    { name: 'Lateral Raise', sets: '2', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Bicep Curl', sets: '2', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Core Circuit', sets: '3', reps: '45 sec each', rest: '30 sec', note: 'Plank + leg raise + bicycle crunch' },
+  ],
+  finisher: '<strong>Run:</strong> 5K at comfortable pace. Track time each week.',
+  note: 'Giant sets build incredible conditioning and work capacity. Tough but efficient.'
+},
+{
+  id: 'FB3',
+  name: 'Heavy Compound Saturday',
+  muscles: 'Full Body (Strength Focus)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '8 min treadmill jog',
+    'Hip flexor lunge x 10 each',
+    'Band pull-apart x 20',
+    'Push-up x 10'
+  ],
+  exercises: [
+    { name: 'Deadlift (heavy, 3-5 rep range)', sets: '4', reps: '4', rest: '3 min', note: '' },
+    { name: 'Incline Bench Press', sets: '3', reps: '8', rest: '2 min', note: '' },
+    { name: 'Barbell Row', sets: '3', reps: '8', rest: '2 min', note: '' },
+    { name: 'Front Squat', sets: '3', reps: '6', rest: '2 min', note: '' },
+    { name: 'OHP', sets: '3', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Chin-Up', sets: '2', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'Plank', sets: '2', reps: '60 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 15 min StairMaster, moderate intensity.',
+  note: 'Heavy compound Saturday. All big movements. Your rest day follows — make it count.'
+},
+{
+  id: 'FB4',
+  name: 'Full Body Hypertrophy Day',
+  muscles: 'Full Body (Volume Focus)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog',
+    'Dynamic full body stretch',
+    'Band pull-apart x 20',
+    'Leg swing x 10'
+  ],
+  exercises: [
+    { name: 'DB Bench Press', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'DB Row', sets: '4', reps: '12 each', rest: '75 sec', note: '' },
+    { name: 'DB Squat', sets: '4', reps: '15', rest: '75 sec', note: '' },
+    { name: 'DB Shoulder Press', sets: '3', reps: '12', rest: '60 sec', note: '' },
+    { name: 'DB Romanian Deadlift', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'DB Curl + Kickback (superset)', sets: '3', reps: '12 + 12', rest: '60 sec', note: '' },
+    { name: 'Calf Raise', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Hanging Leg Raise', sets: '3', reps: '15', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 2 miles at 6–7 mph, steady.',
+  note: 'Dumbbell-focused full body. Great for improving mind-muscle connection and stabilizer strength.'
+},
+{
+  id: 'FB5',
+  name: 'Full Body CrossFit WOD Day',
+  muscles: 'Full Body Athletic Conditioning',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog + jump rope combo',
+    'Dynamic stretch',
+    'Air squat x 20',
+    'Push-up x 15'
+  ],
+  exercises: [
+    { name: 'Hang Power Clean', sets: '5', reps: '3', rest: '2 min', note: 'Explosive Olympic movement' },
+    { name: 'Thruster', sets: '4', reps: '10', rest: '90 sec', note: 'Squat + press in one movement' },
+    { name: 'Deadlift (moderate weight)', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'WOD: 4 rounds for time', sets: '—', reps: '—', rest: '—', note: '400m run + 15 push-ups + 10 pull-ups + 20 air squats' },
+  ],
+  finisher: '<strong>Cooldown:</strong> 1 mile easy jog + 5 min stretch.',
+  note: 'Record your WOD time. This is a benchmark workout — you should see it improve every time it appears.'
+},
+{
+  id: 'FB6',
+  name: 'Squat + Pull + Push Full Body',
+  muscles: 'Full Body (Balanced)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min treadmill jog',
+    'Hip hinge x 10',
+    'Push-up x 10',
+    'Band row x 15'
+  ],
+  exercises: [
+    { name: 'Back Squat', sets: '4', reps: '6', rest: '2 min', note: '' },
+    { name: 'Romanian Deadlift', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Flat Bench Press', sets: '4', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Barbell Row', sets: '4', reps: '8', rest: '90 sec', note: '' },
+    { name: 'Lateral Raise', sets: '3', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Barbell Curl', sets: '3', reps: '10', rest: '60 sec', note: '' },
+    { name: 'Rope Pushdown', sets: '3', reps: '15', rest: '45 sec', note: '' },
+    { name: 'Plank', sets: '3', reps: '45 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 20 min at marathon goal pace. Practice the pace.',
+  note: 'Balanced full body. Equal volume push and pull. This builds the symmetrical hybrid athlete physique.'
+},
+{
+  id: 'FB7',
+  name: 'Endurance Strength Hybrid',
+  muscles: 'Full Body Endurance',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog',
+    'Full body dynamic stretch',
+    'Air squat x 15',
+    'Arm circle x 20'
+  ],
+  exercises: [
+    { name: 'Goblet Squat', sets: '4', reps: '20', rest: '60 sec', note: '' },
+    { name: 'Push-Up (all variations)', sets: '4', reps: 'Max (wide, normal, diamond)', rest: '75 sec', note: '' },
+    { name: 'Pull-Up', sets: '4', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'DB OHP', sets: '4', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Romanian Deadlift', sets: '3', reps: '15', rest: '75 sec', note: '' },
+    { name: 'Farmers Carry', sets: '3', reps: '60 steps', rest: '60 sec', note: '' },
+    { name: 'Core Circuit', sets: '3', reps: '45 sec each', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Long Run:</strong> 3–4 miles at easy pace. Focus on breathing rhythm.',
+  note: 'Endurance hybrid — higher reps, shorter rest, ends with your longest run of the week.'
+},
+{
+  id: 'FB8',
+  name: 'Power + Conditioning Saturday',
+  muscles: 'Full Body Power',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog',
+    'Jump rope 2 min',
+    'Hip circle x 10',
+    'Dynamic lunge x 10 each'
+  ],
+  exercises: [
+    { name: 'Box Jump', sets: '5', reps: '5', rest: '90 sec', note: '' },
+    { name: 'Deadlift', sets: '4', reps: '5', rest: '2.5 min', note: '' },
+    { name: 'Push Press (barbell)', sets: '4', reps: '6', rest: '90 sec', note: 'Leg drive allowed — power movement' },
+    { name: 'Weighted Pull-Up', sets: '3', reps: '5', rest: '2 min', note: '' },
+    { name: 'Sled Push (or sprint)', sets: '5', reps: '30m', rest: '90 sec', note: '' },
+    { name: 'Plank', sets: '3', reps: '60 sec', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 2 miles at race pace. This is a quality run.',
+  note: 'Power-focused Saturday. Heavy and explosive. Your rest day tomorrow allows full recovery.'
+},
+{
+  id: 'FB9',
+  name: 'Upper Lower Hybrid Full Body',
+  muscles: 'Full Body (Split Structure)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min bike',
+    'Band pull-apart x 20',
+    'Goblet squat x 10',
+    'Shoulder rotation x 10'
+  ],
+  exercises: [
+    { name: 'Squat', sets: '4', reps: '8', rest: '2 min', note: '' },
+    { name: 'Bench Press', sets: '4', reps: '8', rest: '2 min', note: '' },
+    { name: 'Romanian Deadlift', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Pull-Up', sets: '3', reps: 'Max', rest: '90 sec', note: '' },
+    { name: 'Leg Press', sets: '3', reps: '15', rest: '75 sec', note: '' },
+    { name: 'Cable Row', sets: '3', reps: '12', rest: '75 sec', note: '' },
+    { name: 'OHP', sets: '3', reps: '10', rest: '75 sec', note: '' },
+    { name: 'Curl + Pushdown (superset)', sets: '3', reps: '12 + 15', rest: '60 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min StairMaster + 5 min stretch.',
+  note: 'Comprehensive full body split structure. All movement patterns represented.'
+},
+{
+  id: 'FB10',
+  name: 'Full Body Deload Week',
+  muscles: 'Full Body (Recovery Focus)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min easy jog',
+    'Full body stretch',
+    'Joint circles all areas'
+  ],
+  exercises: [
+    { name: 'Squat (60% normal weight)', sets: '3', reps: '10', rest: '90 sec', note: 'Deload — light weight, perfect form' },
+    { name: 'Bench Press (60% normal weight)', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Romanian Deadlift (60%)', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Pull-Up', sets: '3', reps: '5', rest: '90 sec', note: '' },
+    { name: 'OHP (60%)', sets: '3', reps: '10', rest: '90 sec', note: '' },
+    { name: 'Band Pull-Apart', sets: '3', reps: '20', rest: '30 sec', note: '' },
+    { name: 'Face Pull', sets: '3', reps: '20', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Easy Run:</strong> 20 min at very comfortable pace. No effort.',
+  note: 'This is a deload Saturday — every 4–6 weeks. Reduced volume and intensity allows your body to fully recover and grow.'
+},
+{
+  id: 'FB11',
+  name: 'Machine Full Body Day',
+  muscles: 'Full Body (Machine Focus)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min treadmill',
+    'Light band warm-up all muscles',
+    'Joint circles'
+  ],
+  exercises: [
+    { name: 'Leg Press', sets: '4', reps: '15', rest: '90 sec', note: '' },
+    { name: 'Machine Chest Press', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Machine Row', sets: '4', reps: '12', rest: '75 sec', note: '' },
+    { name: 'Machine Shoulder Press', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Leg Curl', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Leg Extension', sets: '3', reps: '15', rest: '60 sec', note: '' },
+    { name: 'Machine Curl', sets: '2', reps: '20', rest: '45 sec', note: '' },
+    { name: 'Machine Tricep Extension', sets: '2', reps: '20', rest: '45 sec', note: '' },
+  ],
+  finisher: '<strong>Cardio:</strong> 20 min treadmill, incline 2%, 6 mph.',
+  note: 'Machine day is great when you want to go lighter and give your CNS a break. Still effective for hypertrophy.'
+},
+{
+  id: 'FB12',
+  name: 'Compound Superset Full Body',
+  muscles: 'Full Body (Superset Structure)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog',
+    'Dynamic stretch',
+    'Band pull-apart x 20',
+    'Air squat x 15'
+  ],
+  exercises: [
+    { name: 'Squat + OHP (superset)', sets: '4', reps: '8 + 10', rest: '90 sec', note: '' },
+    { name: 'Deadlift + Pull-Up (superset)', sets: '4', reps: '5 + Max', rest: '2 min', note: '' },
+    { name: 'Bench + Row (superset)', sets: '4', reps: '8 + 10', rest: '90 sec', note: '' },
+    { name: 'Lunge + Curl (superset)', sets: '3', reps: '10 + 12', rest: '75 sec', note: '' },
+    { name: 'Hip Thrust + Pushdown (superset)', sets: '3', reps: '12 + 15', rest: '75 sec', note: '' },
+    { name: 'Core Circuit', sets: '2', reps: '45 sec each', rest: '30 sec', note: '' },
+  ],
+  finisher: '<strong>Run:</strong> 2.5 miles at comfortable marathon training pace.',
+  note: 'Supersets keep heart rate elevated throughout the session — combining hypertrophy and conditioning.'
+},
+{
+  id: 'FB13',
+  name: 'Benchmark Day',
+  muscles: 'Full Body (Testing Day)',
+  category: 'Full Body',
+  tag: 'fullbody',
+  warmup: [
+    '10 min jog',
+    'Full body dynamic stretch',
+    'Ramp up sets on each lift'
+  ],
+  exercises: [
+    { name: 'Squat — work to 5 rep max', sets: '—', reps: 'Work up to 5RM', rest: 'As needed', note: 'Record weight' },
+    { name: 'Bench — work to 5 rep max', sets: '—', reps: 'Work up to 5RM', rest: 'As needed', note: 'Record weight' },
+    { name: 'Deadlift — work to 3 rep max', sets: '—', reps: 'Work up to 3RM', rest: 'As needed', note: 'Record weight' },
+    { name: 'OHP — work to 5 rep max', sets: '—', reps: 'Work up to 5RM', rest: 'As needed', note: 'Record weight' },
+    { name: 'Pull-Up — max reps in one set', sets: '1', reps: 'Max', rest: 'N/A', note: 'Record number' },
+  ],
+  finisher: '<strong>1 Mile Time Trial:</strong> Run your fastest mile. Record time. This is your benchmark.',
+  note: 'Benchmark day reveals your true progress. Do this every 6–8 weeks. Compare to previous results.'
+},
+];
+
+// ============================================================
+// WEEK CYCLE DEFINITIONS
+// ============================================================
+
+const CYCLES = [
+  {
+    id: 'A',
+    name: 'Back & Biceps Week',
+    icon: '🦾',
+    desc: 'Primary emphasis on back width, thickness, and bicep strength. Supporting all other muscle groups.',
+    emphasis: 'Back & Biceps',
+    dayCategories: ['Back & Biceps', 'Chest & Triceps', 'Shoulders & Legs', 'Back & Biceps', 'Upper Body', 'Full Body'],
+  },
+  {
+    id: 'B',
+    name: 'Chest & Triceps Week',
+    icon: '💪',
+    desc: 'Heavy pressing volume. Prioritizing chest mass, tricep strength, and anterior chain development.',
+    emphasis: 'Chest & Triceps',
+    dayCategories: ['Shoulders & Legs', 'Chest & Triceps', 'Back & Biceps', 'Chest & Triceps', 'Upper Body', 'Full Body'],
+  },
+  {
+    id: 'C',
+    name: 'Shoulders & Legs Week',
+    icon: '🦵',
+    desc: 'Heavy lower body volume and shoulder rounding. Building the athletic V-taper and quad/glute mass.',
+    emphasis: 'Shoulders & Legs',
+    dayCategories: ['Shoulders & Legs', 'Back & Biceps', 'Chest & Triceps', 'Shoulders & Legs', 'Conditioning', 'Full Body'],
+  },
+  {
+    id: 'D',
+    name: 'Glutes, Hamstrings & Core Week',
+    icon: '🔥',
+    desc: 'Posterior chain focus. Glute development, hamstring strength, and marathon-specific core work.',
+    emphasis: 'Glutes & Core',
+    dayCategories: ['Glutes & Core', 'Chest & Triceps', 'Back & Biceps', 'Glutes & Core', 'Shoulders & Legs', 'Full Body'],
+  },
+  {
+    id: 'E',
+    name: 'Upper Body Emphasis Week',
+    icon: '🏋️',
+    desc: 'Total upper body attack. Equal push and pull with maximum arm volume. Size and proportion focus.',
+    emphasis: 'Upper Body',
+    dayCategories: ['Chest & Triceps', 'Back & Biceps', 'Upper Body', 'Chest & Triceps', 'Back & Biceps', 'Full Body'],
+  },
+  {
+    id: 'F',
+    name: 'Athletic Conditioning Week',
+    icon: '⚡',
+    desc: 'CrossFit-style training meets endurance work. Speed, power, and cardiovascular capacity building week.',
+    emphasis: 'Conditioning',
+    dayCategories: ['Conditioning', 'Shoulders & Legs', 'Back & Biceps', 'Chest & Triceps', 'Conditioning', 'Full Body'],
+  },
+];
+
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+// ============================================================
+// STATE
+// ============================================================
+
+let currentWeekIndex = 0;
+let weekAssignments = [];
+let savedProgress = {};
+
+function getWorkoutsByCategory(cat) {
+  return WORKOUTS.filter(w => w.category === cat);
+}
+
+function pickRandom(arr, exclude = []) {
+  const pool = arr.filter(w => !exclude.includes(w.id));
+  if (!pool.length) return arr[Math.floor(Math.random() * arr.length)];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function generateWeekAssignment(cycleIndex) {
+  const cycle = CYCLES[cycleIndex % CYCLES.length];
+  const used = [];
+  const assignments = [];
+
+  for (let i = 0; i < 6; i++) {
+    const cat = cycle.dayCategories[i];
+    const pool = getWorkoutsByCategory(cat);
+    const w = pickRandom(pool, used);
+    used.push(w.id);
+    assignments.push(w);
+  }
+
+  return { cycle, assignments };
+}
+
+function buildWeeks(count) {
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(generateWeekAssignment(i));
+  }
+  return result;
+}
+
+function init() {
+  // Load saved progress
+  try {
+    const saved = localStorage.getItem('workoutProgress');
+    if (saved) savedProgress = JSON.parse(saved);
+  } catch(e) {}
+
+  // Load saved week
+  try {
+    const savedWeek = localStorage.getItem('currentWeek');
+    if (savedWeek !== null) currentWeekIndex = parseInt(savedWeek);
+  } catch(e) {}
+
+  // Generate enough weeks
+  weekAssignments = buildWeeks(60);
+
+  // Auto advance to current week based on date
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const weekNum = Math.floor((now - startOfYear) / (7 * 24 * 60 * 60 * 1000));
+
+  renderWeek();
+  loadProgress();
+}
+
+function renderWeek() {
+  while (weekAssignments.length <= currentWeekIndex + 5) {
+    weekAssignments.push(generateWeekAssignment(weekAssignments.length));
+  }
+
+  const { cycle, assignments } = weekAssignments[currentWeekIndex];
+
+  // Update header
+  document.getElementById('weekNum').textContent = currentWeekIndex + 1;
+  document.getElementById('cycleNum').textContent = cycle.id;
+  document.getElementById('emphasisIcon').textContent = cycle.icon;
+  document.getElementById('emphasisTitle').textContent = `WEEK ${currentWeekIndex + 1}: ${cycle.name.toUpperCase()}`;
+  document.getElementById('emphasisDesc').textContent = cycle.desc;
+
+  // Render day cards
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+
+  assignments.forEach((workout, i) => {
+    const day = DAYS[i];
+    const isSat = i === 5;
+    const card = document.createElement('div');
+    card.className = `day-card${isSat ? ' saturday' : ''}`;
+
+    const tagClass = isSat ? 'tag-fullbody' : (workout.tag === 'conditioning' ? 'tag-conditioning' : (workout.tag === 'emphasis' ? 'tag-emphasis' : 'tag-support'));
+    const tagLabel = isSat ? 'Full Body' : (workout.tag === 'conditioning' ? 'Conditioning' : (workout.tag === 'emphasis' ? 'Emphasis' : 'Support'));
+
+    card.innerHTML = `
+      <div class="day-header">
+        <span class="day-name">${day}</span>
+        <span class="day-tag ${tagClass}">${tagLabel}</span>
+      </div>
+      <div class="day-body">
+        <div class="workout-name">${workout.name}</div>
+        <div class="workout-muscles">${workout.muscles}</div>
+        <button class="view-btn" onclick="openModal(${WORKOUTS.indexOf(workout)})">VIEW WORKOUT →</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Save current week
+  try { localStorage.setItem('currentWeek', currentWeekIndex); } catch(e) {}
+
+  // Update shuffle info
+  document.getElementById('shuffleInfo').textContent = `Cycle ${cycle.id} — ${cycle.name}`;
+}
+
+function shuffleWeek() {
+  const currentCycle = weekAssignments[currentWeekIndex];
+  const cycleIndex = CYCLES.findIndex(c => c.id === currentCycle.cycle.id);
+  weekAssignments[currentWeekIndex] = generateWeekAssignment(cycleIndex);
+  renderWeek();
+}
+
+function nextWeek() {
+  currentWeekIndex++;
+  renderWeek();
+}
+
+function prevWeek() {
+  if (currentWeekIndex > 0) {
+    currentWeekIndex--;
+    renderWeek();
+  }
+}
+
+function openModal(workoutIndex) {
+  const workout = WORKOUTS[workoutIndex];
+  const dayIndex = weekAssignments[currentWeekIndex]?.assignments.findIndex(w => w.id === workout.id);
+  const dayName = dayIndex >= 0 ? DAYS[dayIndex] : '';
+
+  document.getElementById('modalDayLabel').textContent = dayName ? `${dayName.toUpperCase()} — WEEK ${currentWeekIndex + 1}` : workout.category.toUpperCase();
+  document.getElementById('modalTitle').textContent = workout.name;
+
+  let html = '';
+
+  // Warmup
+  html += `<div class="section-title">🔥 WARM-UP</div>`;
+  html += `<ul class="warmup-list">`;
+  workout.warmup.forEach(w => { html += `<li>${w}</li>`; });
+  html += `</ul>`;
+
+  // Main exercises
+  html += `<div class="section-title">💪 MAIN WORKOUT</div>`;
+  html += `<table class="exercise-table">
+    <thead><tr>
+      <th>Exercise</th>
+      <th>Sets</th>
+      <th>Reps</th>
+      <th>Rest</th>
+    </tr></thead><tbody>`;
+  workout.exercises.forEach(e => {
+    html += `<tr>
+      <td>
+        <div class="exercise-name">${e.name}</div>
+        ${e.note ? `<div class="exercise-note">${e.note}</div>` : ''}
+      </td>
+      <td class="exercise-detail">${e.sets}</td>
+      <td class="exercise-detail">${e.reps}</td>
+      <td class="exercise-detail">${e.rest || '—'}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  // Finisher
+  html += `<div class="section-title">⚡ CARDIO FINISHER</div>`;
+  html += `<div class="finisher-block"><p>${workout.finisher}</p></div>`;
+
+  // Cooldown
+  html += `<div class="section-title">🧘 COOL-DOWN</div>`;
+  html += `<ul class="cooldown-list">
+    <li>5 min slow treadmill walk at 2.5 mph</li>
+    <li>Quad stretch 30 sec each leg</li>
+    <li>Chest opener stretch 30 sec</li>
+    <li>Lat stretch on rack 20 sec each</li>
+    <li>Hip flexor lunge stretch 30 sec each</li>
+    <li>Foam roll any tight areas 2 min</li>
+  </ul>`;
+
+  // Notes
+  if (workout.note) {
+    html += `<div class="note-block">📋 <strong>Coach's Note:</strong> ${workout.note}</div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveProgress() {
+  savedProgress = {
+    weight: document.getElementById('trackWeight').value,
+    bf: document.getElementById('trackBF').value,
+    run: document.getElementById('trackRun').value,
+    weeks: document.getElementById('trackWeeks').value,
+    updated: new Date().toLocaleDateString()
+  };
+  try {
+    localStorage.setItem('workoutProgress', JSON.stringify(savedProgress));
+  } catch(e) {}
+  const msg = document.getElementById('savedMsg');
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2000);
+}
+
+function loadProgress() {
+  if (savedProgress.weight) document.getElementById('trackWeight').value = savedProgress.weight;
+  if (savedProgress.bf) document.getElementById('trackBF').value = savedProgress.bf;
+  if (savedProgress.run) document.getElementById('trackRun').value = savedProgress.run;
+  if (savedProgress.weeks) document.getElementById('trackWeeks').value = savedProgress.weeks;
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
